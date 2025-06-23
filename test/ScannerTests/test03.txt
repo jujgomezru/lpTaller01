@@ -1,0 +1,53 @@
+#Test 02
+
+float alpha;
+int n;
+int m;
+float beta[2];
+float tau[3];
+
+alpha = 0.5;
+n = 2;
+m = 3;
+beta[2] = [5.4,-9.2];
+tau[3] = [-7.4,1.2,0.58];
+
+modeloDosVias modeloY[2,3,[3,2,4;1,3,2]];
+
+modeloDosVias modeloY = [15.9,-4,66.1;-6.1,3.9;4.2,-1.3,12.4,5.8];[23.8;4.5,3.6,-0.5;2.2,-5.6];
+
+efectos efectosY[alpha,beta,tau];
+
+racha Y;
+
+Y = efectosY ~ modeloY;
+
+#Sumar efectos al modelo Y
+
+for i in range(1,Y.N):
+	for j in range(1,Y.M):
+		efecto_sumado = alpha + beta[i] + tau[j]
+		for k in range(1,Y.n_ij[i][j]):
+			Y.X[i][j][k] += efecto_sumado 
+
+
+#Imprimir la media de cada celda, sumando los respectivos betas y taus en el proceso
+promedios[2][3]
+for i in range(1,Y.N):
+	for j in range(1,Y.M):
+		promedios[i][j] = mean(Y.R[i][j].)
+print(promedios)
+
+#Aplicar transformación de seno a las rachas mayores a la media, y coseno hiperbólico a las rachas menores a la media
+
+for i in range(1,Y.N):
+	for j in range(1,Y.M):
+		for k in range(1,Y.n_ij[i][j]):
+			if (k > promedio):
+				Y.R[i][j][k] = sin(Y.R[i][j][k])
+			else if (k < promedio):
+				Y.R[i][j][k] = cosh(Y.R[i][j][k])
+		
+
+
+
