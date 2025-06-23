@@ -13,19 +13,31 @@ import model.scanner.ColorType;
 import model.scanner.Token;
 
 /**
- * Gestiona la creación de estilos y la aplicación de resaltado sintáctico
+ * Gestiona la creación de estilos, el resaltado inicial y el resaltado según tokens.
  */
 public class SyntaxHighlighter {
-    private Map<String, Style> styles;
+    private Map<String, Style> styles = new HashMap<>();
 
     /**
-     * Crea estilos de texto según los tipos de token y el tema (claro/oscuro)
+     * Inicializa el resaltado: crea estilos y aplica un primer pase sin tokens.
+     *
+     * @param doc  el StyledDocument del JTextPane
+     * @param dark si true, usa paleta de modo oscuro
+     * @throws BadLocationException nunca, porque no hay tokens en este primer pase
+     */
+    public void initialize(StyledDocument doc, boolean dark) throws BadLocationException {
+        createStyles(doc, dark);
+        applyHighlight(doc, List.of());  // pase vacío, solo para pintar el texto con estilo por defecto
+    }
+
+    /**
+     * Crea estilos de texto según los tipos de token y el tema (claro/oscuro).
      *
      * @param doc  documento estilizado del JTextPane
-     * @param dark si true, usa colores para modo oscuro
+     * @param dark si true, usa colores de modo oscuro
      */
     public void createStyles(StyledDocument doc, boolean dark) {
-        styles = new HashMap<>();
+        styles.clear();
         for (ColorType type : ColorType.values()) {
             Style st = doc.addStyle(type.name(), null);
             Color c = dark ? type.getdColor() : type.getColor();
@@ -35,22 +47,23 @@ public class SyntaxHighlighter {
     }
 
     /**
-     * Aplica el resaltado sintáctico a todo el texto según los tokens
+     * Aplica el resaltado sintáctico a todo el texto según los tokens.
      *
      * @param doc    documento estilizado del JTextPane
      * @param tokens lista de tokens generada por el analizador
      * @throws BadLocationException si hay un problema con posiciones de texto
      */
     public void applyHighlight(StyledDocument doc, List<Token> tokens) throws BadLocationException {
-        // Reset a estilo por defecto
+        // 1) Reset a estilo por defecto
         Style defaultStyle = StyleContext.getDefaultStyleContext()
                 .getStyle(StyleContext.DEFAULT_STYLE);
         doc.setCharacterAttributes(0, doc.getLength(), defaultStyle, true);
 
+        // 2) Re-pintar cada token
         String fullText = doc.getText(0, doc.getLength());
         for (Token t : tokens) {
             Style st = styles.get(t.getLexemeType());
-            if (st == null) continue; // estilo no definido, saltar
+            if (st == null) continue;
 
             String lexeme = t.getText();
             int index = fullText.indexOf(lexeme);
