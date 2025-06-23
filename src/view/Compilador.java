@@ -56,6 +56,7 @@ public class Compilador extends javax.swing.JFrame {
 
     public TokenTableModel tblTokensModel;
     public LexerAnalyzer lex;
+    private final FileController fileController;
     public String currentFilePath = null;
     public String currentFileName = null;
     private HashMap<String, Style> colorStyles;
@@ -64,6 +65,7 @@ public class Compilador extends javax.swing.JFrame {
 
     public Compilador() {
         initComponents();
+        fileController = new FileController();
         init();
     }
 
@@ -314,65 +316,48 @@ public class Compilador extends javax.swing.JFrame {
 
 
     }//GEN-LAST:event_btnNuevoActionPerformed
-    private void btnAbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAbrirActionPerformed
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileFilter(new FileNameExtensionFilter("Text Files", "txt", "cz"));
-        int result = fileChooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            this.currentFilePath = selectedFile.getAbsolutePath();
-            this.currentFileName = selectedFile.getName();
-            System.out.println("Selected file: " + selectedFile.getAbsolutePath());
+    private void btnAbrirActionPerformed(java.awt.event.ActionEvent evt) {
+        fileController.showOpenDialog(this).ifPresent(file -> {
+            currentFilePath = file.getAbsolutePath();
+            currentFileName = file.getName();
             try {
-                BufferedReader reader = new BufferedReader(new FileReader(selectedFile));
-                StringBuilder content = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    content.append(line).append("\n");
-                }
-                reader.close();
-                this.jtpCode.setText(content.toString());
-                this.jtaConsole.setText("");
-                fillTable(this.tblTokens, new ArrayList<>());
+                String content = java.nio.file.Files.readString(file.toPath());
+                jtpCode.setText(content);
+                jtaConsole.setText("");
+                fillTable(tblTokens, new ArrayList<>());
             } catch (IOException e) {
-                System.out.println("Error reading file: " + e.getMessage());
+                JOptionPane.showMessageDialog(this, "Error al leer archivo: " + e.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
             }
-        }
-        this.updateColors();
-    }//GEN-LAST:event_btnAbrirActionPerformed
-    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        if (this.currentFilePath == null || this.currentFileName == null) {
-            btnAbrirActionPerformed(evt);
+            updateColors();
+        });
+    }
+    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {
+        if (currentFilePath == null) {
+            // si no hay ruta, use "Guardar como"
+            btnGuardarComoActionPerformed(evt);
         } else {
-            System.out.println("guardar");
-            // Add code here to save changes to the current file
             try {
-                FileWriter fileWriter = new FileWriter(this.currentFilePath);
-                fileWriter.write(this.jtpCode.getText());
-                fileWriter.close();
+                java.nio.file.Files.writeString(java.nio.file.Path.of(currentFilePath), jtpCode.getText());
             } catch (IOException ex) {
-                System.out.println("Error al guardar el archivo: " + ex.getMessage());
+                JOptionPane.showMessageDialog(this, "Error al guardar: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
-    }//GEN-LAST:event_btnGuardarActionPerformed
-    private void btnGuardarComoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarComoActionPerformed
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileFilter(new FileNameExtensionFilter("Text Files", "txt", "cz"));
-        int result = fileChooser.showSaveDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
+    }
+
+    private void btnGuardarComoActionPerformed(java.awt.event.ActionEvent evt) {
+        fileController.showSaveDialog(this).ifPresent(file -> {
             try {
-                FileWriter writer = new FileWriter(selectedFile);
-                writer.write(jtpCode.getText());
-                writer.close();
-                System.out.println("\nFile saved: " + selectedFile.getAbsolutePath());
-                this.currentFileName = selectedFile.getName();
-                this.currentFilePath = selectedFile.getAbsolutePath();
+                java.nio.file.Files.writeString(file.toPath(), jtpCode.getText());
+                currentFilePath = file.getAbsolutePath();
+                currentFileName = file.getName();
             } catch (IOException e) {
-                System.out.println("\nError saving file: " + e.getMessage());
+                JOptionPane.showMessageDialog(this, "Error al guardar archivo: " + e.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
             }
-        }
-    }//GEN-LAST:event_btnGuardarComoActionPerformed
+        });
+    }
 
     private void btnCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCompilarActionPerformed
         System.out.println("compilar");
