@@ -1,49 +1,29 @@
 package view;
 
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-
 import java.awt.Color;
 import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
-import javax.swing.Timer;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.table.AbstractTableModel;
 import model.scanner.LexerAnalyzer;
 import model.scanner.Token;
 import utils.TokenTableModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
@@ -51,12 +31,12 @@ import javax.swing.text.StyledDocument;
 import model.scanner.ColorType;
 import utils.utils;
 
-
 public class Compilador extends javax.swing.JFrame {
 
     public TokenTableModel tblTokensModel;
-    public LexerAnalyzer lex;
     private final FileController fileController;
+    private final LexerController lexerController;
+    private SyntaxHighlighter syntaxHighlighter;
     public String currentFilePath = null;
     public String currentFileName = null;
     private HashMap<String, Style> colorStyles;
@@ -66,6 +46,8 @@ public class Compilador extends javax.swing.JFrame {
     public Compilador() {
         initComponents();
         fileController = new FileController();
+        lexerController = new LexerController();
+        syntaxHighlighter = new SyntaxHighlighter();
         init();
     }
 
@@ -112,7 +94,9 @@ public class Compilador extends javax.swing.JFrame {
         // Vincula la tecla Ctrl + S a la acción
         inputMap.put(KeyStroke.getKeyStroke("ctrl S"), "save");
         actionMap.put("save", action);
-        createStyles();
+        StyledDocument doc = (StyledDocument) jtpCode.getDocument();
+        syntaxHighlighter.createStyles(doc, dark);
+        updateColors();
     }
 
     @SuppressWarnings("unchecked")
@@ -325,11 +309,11 @@ public class Compilador extends javax.swing.JFrame {
                 jtpCode.setText(content);
                 jtaConsole.setText("");
                 fillTable(tblTokens, new ArrayList<>());
+                updateColors();
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(this, "Error al leer archivo: " + e.getMessage(),
                         "Error", JOptionPane.ERROR_MESSAGE);
             }
-            updateColors();
         });
     }
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {
@@ -359,71 +343,30 @@ public class Compilador extends javax.swing.JFrame {
         });
     }
 
-    private void btnCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCompilarActionPerformed
-        System.out.println("compilar");
-        String txt = this.jtpCode.getText().trim();
-        Reader reader = new BufferedReader(new StringReader(txt));
-
-        this.lex = new LexerAnalyzer((BufferedReader) reader);
-
-        System.out.println("resultado: ");
-        lex.printTokens();
-        //tblTokens
-        fillTable(this.tblTokens, lex.getTokens());
-
-        fillErrorPanel(this.jtaConsole, lex.getErrorTokens());
-    }//GEN-LAST:event_btnCompilarActionPerformed
+    private void btnCompilarActionPerformed(java.awt.event.ActionEvent evt) {
+        String source = jtpCode.getText().trim();
+        LexerController.AnalysisResult result = lexerController.analyze(source);
+        fillTable(tblTokens, result.getTokens());
+        fillErrorPanel(jtaConsole, result.getErrors());
+    }
 
     private void jtpCodeKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jtpCodeKeyReleased
         // Obtén el StyledDocument del JTextPane
         this.updateColors();
 
     }//GEN-LAST:event_jtpCodeKeyReleased
-    public void updateColors(){
-
+    public void updateColors() {
         StyledDocument doc = (StyledDocument) this.jtpCode.getDocument();
-        // Restablece el estilo a su estado original
-        Style defaultStyle;
+        // Regenera los estilos según tema actual
+        syntaxHighlighter.createStyles(doc, dark);
 
-        defaultStyle =StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
-
-
-
-        // Modifica el nuevo estilo
-        if(this.dark) StyleConstants.setForeground(defaultStyle, Color.WHITE); // Cambia el color de la fuente a #808000
-        else StyleConstants.setForeground(defaultStyle, Color.BLACK);
-        doc.setCharacterAttributes(0, doc.getLength(), defaultStyle, true);
         String txt = this.jtpCode.getText().trim();
-        Reader reader = new BufferedReader(new StringReader(txt));
-        LexerAnalyzer minilex = new LexerAnalyzer((BufferedReader) reader);
-        this.Ctokens = (List<Token>) minilex.getTokens();
-        // Recorre los tokens
-        for (Iterator it = this.Ctokens.iterator(); it.hasNext();) {
-            Token token = (Token) it.next();
-            // Encuentra el estilo correspondiente al tipo de lexema del token
-            Style style = colorStyles.get(token.getLexemeType());
+        LexerController.AnalysisResult result = lexerController.analyze(txt);
 
-            // Si encontramos un estilo, lo aplicamos al texto del token
-            // Si encontramos un estilo, lo aplicamos a todas las ocurrencias del texto del token
-            if (style != null) {
-                String text = token.getText();
-                if (token.getLexemeType().equals("ERR")) {
-                    StyleConstants.setItalic(style, true);
-                    StyleConstants.setUnderline(style, true);
-                    StyleConstants.setForeground(style, Color.RED);
-
-                }
-                try {
-                    String docText = doc.getText(0, doc.getLength());
-                    int start = 0;
-                    while ((start = docText.indexOf(text, start)) != -1) {
-                        doc.setCharacterAttributes(start, text.length(), style, false);
-                        start += text.length();
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
+        try {
+            syntaxHighlighter.applyHighlight(doc, result.getTokens());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
     private void bt_bgActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_bgActionPerformed
@@ -439,8 +382,9 @@ public class Compilador extends javax.swing.JFrame {
             this.jtpCode.setCaretColor(Color.BLACK);
             this.jspCode.setForeground(Color.WHITE);
         }
-        this.createStyles();
-        this.updateColors();
+        StyledDocument doc = (StyledDocument) jtpCode.getDocument();
+        syntaxHighlighter.createStyles(doc, dark);
+        updateColors();
 
 
     }//GEN-LAST:event_bt_bgActionPerformed
@@ -450,35 +394,19 @@ public class Compilador extends javax.swing.JFrame {
         table.setModel(model);
     }
 
-    public void fillErrorPanel(JTextArea txt, List<Token> tokens) {
-        String result = "";
-        if (tokens.isEmpty()) {
-            result = "No se encontraron errores en el análisis léxico.\n";
+    public void fillErrorPanel(JTextArea outputArea, List<Token> errors) {
+        StringBuilder result = new StringBuilder();
+
+        if (errors.isEmpty()) {
+            result.append("No se encontraron errores en el análisis léxico.\n");
         } else {
-            result = "Se encontraron errores en el análisis léxico.\n";
-
-            for (Token token : tokens) {
-                result += token.toString() + "\n";
+            result.append("Se encontraron errores en el análisis léxico:\n\n");
+            for (Token token : errors) {
+                result.append(token).append("\n");
             }
         }
-        txt.setText(result);
-    }
 
-    public void createStyles() {
-        // Obtén el StyledDocument del JTextPane
-        StyledDocument doc = (StyledDocument) this.jtpCode.getDocument();
-        this.colorStyles = new HashMap<>();
-        // Recorre los valores del enum
-        for (ColorType colorType : ColorType.values()) {
-            // Crea un estilo para cada valor
-            Style style = doc.addStyle(colorType.name(), null);
-            if(this.dark ==true){
-                StyleConstants.setForeground(style, colorType.getdColor());
-            }else{
-                StyleConstants.setForeground(style, colorType.getColor());
-            }
-            this.colorStyles.put(colorType.name(), style);
-        }
+        outputArea.setText(result.toString());
     }
 
     /**
