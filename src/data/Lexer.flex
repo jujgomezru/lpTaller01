@@ -70,6 +70,8 @@ String = \"(\\.|[^\"\\])*\" | \'(\\.|[^\'\\])*\'
 {NumeroFlotante} { return token(TokenType.LIT_FLOAT, yytext(), yyline, yycolumn); }
 
 /* Palabras reservadas */
+"in" { return token(TokenType.IN, yytext(), yyline, yycolumn); }
+"range" { return token(TokenType.RANGE, yytext(), yyline, yycolumn); }
 "if" { return token(TokenType.IF, yytext(), yyline, yycolumn); }
 "else" { return token(TokenType.ELSE, yytext(), yyline, yycolumn); }
 "elif" { return token(TokenType.ELIF, yytext(), yyline, yycolumn); }
@@ -90,7 +92,7 @@ String = \"(\\.|[^\"\\])*\" | \'(\\.|[^\'\\])*\'
 "false" { return token(TokenType.FALSE, yytext(), yyline, yycolumn); }
 "null" { return token(TokenType.NULL, yytext(), yyline, yycolumn); }
 "print" { return token(TokenType.PRINT, yytext(), yyline, yycolumn); }
-"range" { return token(TokenType.RANGE, yytext(), yyline, yycolumn); }
+
 /* Extra: Palabras reservadas, para implementaciones estadisticas (Problema del proyecto)*/
 "mean" { return token(TokenType.MEAN, yytext(), yyline, yycolumn); }
 "max" { return token(TokenType.MAX, yytext(), yyline, yycolumn); }

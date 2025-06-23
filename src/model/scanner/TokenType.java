@@ -13,6 +13,8 @@ package model.scanner;
 
  
 public enum TokenType {
+    IN(ColorType.FN),
+    RANGE(ColorType.FN),
     IF(ColorType.RW),
     ELSE(ColorType.RW),
     ELIF(ColorType.RW),
@@ -33,7 +35,6 @@ public enum TokenType {
     FALSE(ColorType.LIT),
     NULL(ColorType.LIT),
     PRINT(ColorType.FN),
-    RANGE(ColorType.FN),
     MEAN(ColorType.FN),
     MAX(ColorType.FN),
     MIN(ColorType.FN),
