@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.*;
@@ -26,11 +28,10 @@ public class Compilador extends JFrame {
     private final FileController fileController;
     private final LexerController lexerController;
     private final SyntaxHighlighter syntaxHighlighter;
-
     private String currentFilePath;
     private boolean dark = false;
 
-    // Componentes de UI
+// Componentes de UI
     private JToolBar toolBar;
     private JSplitPane verticalSplit;
     private JSplitPane horizontalSplit;
@@ -45,25 +46,21 @@ public class Compilador extends JFrame {
         fileController = new FileController();
         lexerController = new LexerController();
         syntaxHighlighter = new SyntaxHighlighter();
-
         initComponents();
-
-        // Initial highlight and empty console
+// Initial highlight and empty console
         try {
             syntaxHighlighter.initialize((StyledDocument) editorPane.getDocument(), dark);
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
         consoleArea.setText("");
-
-        // Default window size
+// Default window size
         setSize(1000, 600);
         setLocationRelativeTo(null);
         setVisible(true);
     }
-
     private void initComponents() {
-        // Toolbar
+// Toolbar
         toolBar = new JToolBar();
         JButton btnNuevo = new JButton("Nuevo");
         JButton btnAbrir = new JButton("Abrir");
@@ -79,60 +76,60 @@ public class Compilador extends JFrame {
         toolBar.add(btnCompilar);
         toolBar.addSeparator();
         toolBar.add(btnToggleTheme);
-
-        // Editor y gutter de líneas
+// Editor y gutter de líneas
         editorPane = new JTextPane();
         editorPane.setFont(new java.awt.Font("Monospaced", 0, 14));
         JScrollPane editorScroll = new JScrollPane(editorPane);
         lineNumbers = new JTextArea("1");
-        // Configurar gutter de líneas estático
+// Configurar gutter de líneas estático
         lineNumbers.setEditable(false);
         lineNumbers.setFocusable(false);
         lineNumbers.setHighlighter(null);
+        lineNumbers.addMouseListener(new MouseAdapter() {
+            @Override public void mousePressed(MouseEvent e) { e.consume(); }
+            @Override public void mouseClicked(MouseEvent e) { e.consume(); }
+        });
+        lineNumbers.addMouseMotionListener(new MouseAdapter() {
+            @Override public void mouseDragged(MouseEvent e) { e.consume(); }
+        });
         lineNumbers.setBackground(new Color(230,230,230));
         lineNumbers.setFont(editorPane.getFont());
         lineNumbers.setPreferredSize(new Dimension(40, Integer.MAX_VALUE));
-        // Evitar selección al hacer click
+// Evitar selección al hacer click
         lineNumbers.setCaretPosition(0);
         editorScroll.setRowHeaderView(lineNumbers);
-        // Sincronizar líneas al editar
+// Sincronizar líneas al editar
         editorPane.getDocument().addDocumentListener(new DocumentListener() {
             @Override public void insertUpdate(DocumentEvent e) { updateLineNumbers(); }
             @Override public void removeUpdate(DocumentEvent e) { updateLineNumbers(); }
             @Override public void changedUpdate(DocumentEvent e) { }
         });
 
-        // Consola de errores
+// Consola de errores
         consoleArea = new JTextArea();
         consoleArea.setEditable(false);
         JScrollPane consoleScroll = new JScrollPane(consoleArea);
-
-        // Split vertical editor/consola
+// Split vertical editor/consola
         verticalSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, editorScroll, consoleScroll);
         verticalSplit.setResizeWeight(0.7);
-
-        // Tabla de tokens
+// Tabla de tokens
         tokensTable = new JTable(new TokenTableModel());
         JScrollPane tokensScroll = new JScrollPane(tokensTable);
-
-        // Split horizontal editor+consola/tokens
+// Split horizontal editor+consola/tokens
         horizontalSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, verticalSplit, tokensScroll);
         horizontalSplit.setResizeWeight(0.75);
-
-        // Layout principal
+// Layout principal
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(toolBar, BorderLayout.NORTH);
         getContentPane().add(horizontalSplit, BorderLayout.CENTER);
-
-        // Listeners de botones
+// Listeners de botones
         btnNuevo.addActionListener(e -> onNuevo());
         btnAbrir.addActionListener(e -> onAbrir());
         btnGuardar.addActionListener(e -> onGuardar());
         btnGuardarComo.addActionListener(e -> onGuardarComo());
         btnCompilar.addActionListener(e -> onCompilar());
         btnToggleTheme.addActionListener(e -> onToggleTheme());
-
-        // Ctrl+S
+// Ctrl+S
         Action saveAction = new AbstractAction() {
             @Override public void actionPerformed(ActionEvent e) { onGuardar(); }
         };
@@ -141,7 +138,6 @@ public class Compilador extends JFrame {
         im.put(KeyStroke.getKeyStroke("ctrl S"), "save");
         am.put("save", saveAction);
     }
-
     private void updateLineNumbers() {
         int totalLines = editorPane.getDocument()
                 .getDefaultRootElement().getElementCount();
@@ -210,7 +206,6 @@ public class Compilador extends JFrame {
         try { syntaxHighlighter.applyHighlight((StyledDocument) editorPane.getDocument(), result.getTokens()); }
         catch (BadLocationException e) { e.printStackTrace(); }
     }
-
     private void onToggleTheme() {
         dark = !dark;
         btnToggleTheme.setText(dark ? "Light Mode" : "Dark Mode");
@@ -228,12 +223,10 @@ public class Compilador extends JFrame {
             syntaxHighlighter.applyHighlight((StyledDocument) editorPane.getDocument(), tokens);
         } catch (BadLocationException e) { e.printStackTrace(); }
     }
-
     private void onTokenSelected(ListSelectionEvent e) {
         if (!e.getValueIsAdjusting()) return;
         for (int r : tokensTable.getSelectedRows()) System.out.println("Token fila: " + r);
     }
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(Compilador::new);
     }
