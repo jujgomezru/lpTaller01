@@ -2,13 +2,8 @@ package view;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -19,16 +14,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
-import model.scanner.LexerAnalyzer;
 import model.scanner.Token;
 import utils.TokenTableModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.text.Style;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
-import model.scanner.ColorType;
 import utils.utils;
 
 public class Compilador extends javax.swing.JFrame {
@@ -39,7 +29,6 @@ public class Compilador extends javax.swing.JFrame {
     private SyntaxHighlighter syntaxHighlighter;
     public String currentFilePath = null;
     public String currentFileName = null;
-    private HashMap<String, Style> colorStyles;
     private List Ctokens;
     private boolean dark=false;
 
@@ -296,7 +285,7 @@ public class Compilador extends javax.swing.JFrame {
         fillTable(this.tblTokens, new ArrayList());
         this.jtaConsole.setText("");
         this.jtpCode.setText("");
-        this.Ctokens.clear();
+        this.Ctokens = new ArrayList<>();
 
 
     }//GEN-LAST:event_btnNuevoActionPerformed
