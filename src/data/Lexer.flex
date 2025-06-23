@@ -4,6 +4,7 @@ import model.scanner.TokenType;
 %%
 %class Lexer
 %type Token
+%public
 %line
 %column
 %{
@@ -49,7 +50,7 @@ Digito = [0-9]
 Identificador = {Letra}({Letra}|{Digito})*
 
 /* Número */
-Numero = 0 | [1-9][0-9]*
+Numero = -?(0 | [1-9][0-9]*)
 
 /* Número entero */
 NumeroEntero = {Numero}
@@ -64,6 +65,10 @@ NumeroFlotante = {NumeroEntero} "." [0-9]+
 String = \"(\\.|[^\"\\])*\" | \'(\\.|[^\'\\])*\'
 
 %%
+
+{NumeroEntero} { return token(TokenType.LIT_INT, yytext(), yyline, yycolumn); }
+{NumeroFlotante} { return token(TokenType.LIT_FLOAT, yytext(), yyline, yycolumn); }
+
 /* Palabras reservadas */
 "if" { return token(TokenType.IF, yytext(), yyline, yycolumn); }
 "else" { return token(TokenType.ELSE, yytext(), yyline, yycolumn); }
@@ -78,16 +83,32 @@ String = \"(\\.|[^\"\\])*\" | \'(\\.|[^\'\\])*\'
 "int" { return token(TokenType.INT, yytext(), yyline, yycolumn); }
 "float" { return token(TokenType.FLOAT, yytext(), yyline, yycolumn); }
 "string" { return token(TokenType.STRING, yytext(), yyline, yycolumn); }
+"modeloDosVias" {return token(TokenType.MODELODOSVIAS, yytext(), yyline, yycolumn); }
+"efectos" {return token(TokenType.EFECTOS, yytext(), yyline, yycolumn); }
+"racha" {return token(TokenType.RACHA, yytext(), yyline, yycolumn); }
 "true" { return token(TokenType.TRUE, yytext(), yyline, yycolumn); }
 "false" { return token(TokenType.FALSE, yytext(), yyline, yycolumn); }
 "null" { return token(TokenType.NULL, yytext(), yyline, yycolumn); }
 "print" { return token(TokenType.PRINT, yytext(), yyline, yycolumn); }
+"range" { return token(TokenType.RANGE, yytext(), yyline, yycolumn); }
 /* Extra: Palabras reservadas, para implementaciones estadisticas (Problema del proyecto)*/
 "mean" { return token(TokenType.MEAN, yytext(), yyline, yycolumn); }
 "max" { return token(TokenType.MAX, yytext(), yyline, yycolumn); }
 "min" { return token(TokenType.MIN, yytext(), yyline, yycolumn); }
 "median" { return token(TokenType.MEDIAN, yytext(), yyline, yycolumn); }
 "mode" { return token(TokenType.MODE, yytext(), yyline, yycolumn); }
+"sin" { return token(TokenType.SIN, yytext(), yyline, yycolumn); }
+"cos" { return token(TokenType.COS, yytext(), yyline, yycolumn); }
+"tan" { return token(TokenType.TAN, yytext(), yyline, yycolumn); }
+"sec" { return token(TokenType.SEC, yytext(), yyline, yycolumn); }
+"csc" { return token(TokenType.CSC, yytext(), yyline, yycolumn); }
+"cot" { return token(TokenType.COT, yytext(), yyline, yycolumn); }
+"sinh" { return token(TokenType.SINH, yytext(), yyline, yycolumn); }
+"cosh" { return token(TokenType.COSH, yytext(), yyline, yycolumn); }
+"tanh" { return token(TokenType.TANH, yytext(), yyline, yycolumn); }
+
+
+
 
 
 /* Identificador */
@@ -100,6 +121,7 @@ String = \"(\\.|[^\"\\])*\" | \'(\\.|[^\'\\])*\'
 "/" { return token(TokenType.OP_DIV, yytext(), yyline, yycolumn); }
 "%" { return token(TokenType.OP_MOD, yytext(), yyline, yycolumn); }
 "^" { return token(TokenType.OP_POT, yytext(), yyline, yycolumn); }
+"~" { return token(TokenType.OP_MCTMZ, yytext(), yyline, yycolumn); }
 /* Operadores relacionales */
 "<" { return token(TokenType.OP_MENOR, yytext(), yyline, yycolumn); }
 "<=" { return token(TokenType.OP_MENOR_IGUAL, yytext(), yyline, yycolumn); }
@@ -134,8 +156,7 @@ String = \"(\\.|[^\"\\])*\" | \'(\\.|[^\'\\])*\'
 ":" { return token(TokenType.DOS_PUNTOS, yytext(), yyline, yycolumn); }
 
 /* Literales */
-{NumeroEntero} { return token(TokenType.LIT_INT, yytext(), yyline, yycolumn); }
-{NumeroFlotante} { return token(TokenType.LIT_FLOAT, yytext(), yyline, yycolumn); }
+
 {String} { return token(TokenType.LIT_STRING, yytext(), yyline, yycolumn); }
 
 /* null, true, false definidos en palabras reservadas también cuentan como literales */
