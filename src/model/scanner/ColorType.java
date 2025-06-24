@@ -1,42 +1,49 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Enum.java to edit this template
+ */
 package model.scanner;
 
 import java.awt.Color;
 
 /**
- * Colores para tema oscuro en el resaltado de sintaxis.
- * @author dsrodriguezse
+ *
+ * @author
  */
+// para fondo blanco / fondo oscuro, respectivamente:
 
 public enum ColorType {
-    RW(Color.decode("#E06C75")),      // Palabras clave
-    FN(Color.decode("#E5C07B")),      // Funciones
-    DT(Color.decode("#98C379")),      // Tipos de dato
-    LIT(Color.decode("#808000")),     // Literales
-    ID(Color.decode("#61AFEF")),      // Identificadores
-    OP_ARIT(Color.WHITE),             // Operadores aritméticos
-    OP_REL(Color.decode("#C678DD")),  // Operadores relacionales
-    OP_LOG(Color.decode("#C678DD")),  // Operadores lógicos
-    OP_ASIGN(Color.WHITE),            // Asignación
-    DEL(Color.WHITE),                 // Delimitadores
-    ERR(Color.decode("#BE5046")),     // Errores
-    EOF(Color.decode("#282C34"));     // Fondo (end of file)
+    RW(Color.decode("#7F0055"), Color.decode("#E06C75")), // Keywords (Purple)
+    FN(Color.decode("#7F0055"), Color.decode("#E5C07B")), // Function (Purple)
+    DT(Color.decode("#2A00FF"), Color.decode("#98C379")), // Data types (Blue)
+    LIT(Color.decode("#008000"), Color.decode("#808000")), // Literals, e.g. Strings, numbers (Green)
+    ID(Color.decode("#0000FF"), Color.decode("#61AFEF")), // Identifiers, e.g. variable names (Blue)
+    OP_ARIT(Color.decode("#4B0082"), Color.WHITE), // Arithmetic operators (Indigo)
+    OP_REL(Color.decode("#800080"), Color.decode("#C678DD")), // Relational operators (Purple)
+    OP_LOG(Color.decode("#800080"), Color.decode("#C678DD")), // Logical operators (Purple)
+    OP_ASIGN(Color.decode("#4B0082"), Color.WHITE), // Assignment operators (Indigo)
+    DEL(Color.decode("#4B0082"), Color.WHITE), // Delimiters, e.g. braces, parentheses (Indigo)
+    ERR(Color.decode("#FF0000"), Color.decode("#BE5046")), // Errors (Red)
+    EOF(Color.decode("#000000"), Color.decode("#282C34")); // End of file (Black)
 
     private final Color color;
-
-    ColorType(Color color) {
+    private final Color dcolor;
+    ColorType(Color color, Color dcolor) {
         this.color = color;
+        this.dcolor = dcolor;
+        
     }
 
     public Color getColor() {
         return color;
     }
-
-    // Alias temporal si el código aún llama a getdColor()
-    public Color getdColor() {
-        return getColor();
+    public Color getdColor(){
+        return dcolor;
     }
 
     public String getColorCode() {
-        return String.format("#%06x", color.getRGB() & 0xFFFFFF);
+        int rgb = color.getRGB();
+        String hex = String.format("#%06x", rgb & 0xFFFFFF);
+        return hex;
     }
 }
