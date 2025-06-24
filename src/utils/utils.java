@@ -4,33 +4,25 @@
  */
 package utils;
 
-import java.awt.Color;
 import java.awt.Font;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import view.Compilador;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import javax.swing.JFrame;
-import javax.swing.JTextPane;
 import javax.swing.JScrollPane;
+import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.AbstractDocument;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
-import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-import utils.AutoCompleteDocumentFilter;
+import view.Compilador;
 
 /**
  *
@@ -137,14 +129,14 @@ public class utils {
 
     public static void adjustCurrentDir() throws IOException, IOException {
         File currentDir = new File(".");
-        File targetDir = new File("Lenguajes_2024_1");
+        File targetDir = new File("lpTaller01");
 
-        // Si el directorio "Lenguajes_2024_1" existe en el directorio actual, cambia a ese directorio
-        if (new File(currentDir, "Lenguajes_2024_1").exists()) {
-            currentDir = new File(currentDir, "Lenguajes_2024_1");
-        } // De lo contrario, sube en la jerarquía de directorios hasta que el directorio actual sea "Lenguajes_2024_1"
-        else if (!currentDir.getCanonicalPath().endsWith("Lenguajes_2024_1")) {
-            while (!currentDir.getCanonicalPath().endsWith("Lenguajes_2024_1")) {
+        // Si el directorio "lpTaller01" existe en el directorio actual, cambia a ese directorio
+        if (new File(currentDir, "lpTaller01").exists()) {
+            currentDir = new File(currentDir, "lpTaller01");
+        } // De lo contrario, sube en la jerarquía de directorios hasta que el directorio actual sea "lpTaller01"
+        else if (!currentDir.getCanonicalPath().endsWith("lpTaller01")) {
+            while (!currentDir.getCanonicalPath().endsWith("lpTaller01")) {
                 currentDir = currentDir.getParentFile();
             }
         }
