@@ -4,10 +4,6 @@
  */
 package ScannerTests;
 
-/**
- *
- * @author Cesar_R
- */
 import model.scanner.LexerAnalyzer;
 public class UseLexerAnalyzer {
     public static void main(String[] args) {

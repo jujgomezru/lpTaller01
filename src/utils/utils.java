@@ -32,10 +32,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import utils.AutoCompleteDocumentFilter;
 
-/**
- *
- * @author Cesar_R
- */
+
 public class utils {
 
     public static void runComand(String comand) throws IOException {
@@ -136,15 +133,14 @@ public class utils {
     }
 
     public static void adjustCurrentDir() throws IOException, IOException {
+        String nameDir = "lpTaller01";
         File currentDir = new File(".");
-        File targetDir = new File("Lenguajes_2024_1");
+        File targetDir = new File(nameDir);
 
-        // Si el directorio "Lenguajes_2024_1" existe en el directorio actual, cambia a ese directorio
-        if (new File(currentDir, "Lenguajes_2024_1").exists()) {
-            currentDir = new File(currentDir, "Lenguajes_2024_1");
-        } // De lo contrario, sube en la jerarquía de directorios hasta que el directorio actual sea "Lenguajes_2024_1"
-        else if (!currentDir.getCanonicalPath().endsWith("Lenguajes_2024_1")) {
-            while (!currentDir.getCanonicalPath().endsWith("Lenguajes_2024_1")) {
+        if (new File(currentDir, nameDir).exists()) {
+            currentDir = new File(currentDir, nameDir);
+        } else if (!currentDir.getCanonicalPath().endsWith(nameDir)) {
+            while (!currentDir.getCanonicalPath().endsWith(nameDir)) {
                 currentDir = currentDir.getParentFile();
             }
         }

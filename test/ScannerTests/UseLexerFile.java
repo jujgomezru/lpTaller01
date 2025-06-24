@@ -16,10 +16,7 @@ import model.scanner.Token;
 import model.scanner.TokenType;
 import static utils.utils.runComand;
 
-/**
- *
- * @author Cesar_R
- */
+
 
 public class UseLexerFile {
     

@@ -6,10 +6,7 @@ package model.scanner;
 
 import java.awt.Color;
 
-/**
- *
- * @author Cesar_R
- */
+
 // para fondo blanco / fondo oscuro, respectivamente:
 
 public enum ColorType {

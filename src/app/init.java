@@ -8,10 +8,7 @@ import java.io.IOException;
 import utils.utils;
 import view.Compilador;
 import controller.MainController;
-/**
- *
- * @autor TriviGod
- */
+
 public class init {
     
 

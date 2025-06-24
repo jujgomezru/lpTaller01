@@ -10,10 +10,6 @@ import model.scanner.LexerAnalyzer;
 import utils.utils;
 import view.Compilador;
 
-/**
- *
- * @author Cesar_R
- */
 public  class MainController {
     
     public Compilador UX;

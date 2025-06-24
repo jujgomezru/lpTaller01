@@ -9,10 +9,7 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 import model.scanner.Token;
 
-/**
- *
- * @author Cesar_R
- */
+
  public class TokenTableModel extends AbstractTableModel {
     private final List<Token> tokens;
     private final String[] columnNames = {"txt", "Token", "[Linea, columna]", "Lexema"};

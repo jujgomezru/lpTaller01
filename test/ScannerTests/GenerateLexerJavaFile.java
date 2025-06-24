@@ -4,10 +4,7 @@
  */
 package ScannerTests;
 
-/**
- *
- * @author Cesar_R
- */
+
 import model.scanner.Token;
 import model.scanner.TokenType;
 import app.init;

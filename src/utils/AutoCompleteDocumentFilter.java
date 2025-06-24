@@ -12,10 +12,6 @@ import javax.swing.text.Document;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.JTextComponent;
 
-/**
- *
- * @author Cesar_R
- */
 public class AutoCompleteDocumentFilter extends DocumentFilter {
 
     private JTextComponent textComponent;

@@ -4,14 +4,7 @@
  */
 package model.scanner;
 
-/**
- *
- * @author Cesar_R
- */
 
-
-
- 
 public enum TokenType {
     IN(ColorType.FN),
     RANGE(ColorType.FN),
