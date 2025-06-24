@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,18 +60,71 @@ public class SyntaxHighlighter {
                 .getStyle(StyleContext.DEFAULT_STYLE);
         doc.setCharacterAttributes(0, doc.getLength(), defaultStyle, true);
 
-        // 2) Re-pintar cada token
+        // 2) Definir prioridades de resaltado
+        Map<ColorType, Integer> priorities = new HashMap<>();
+        priorities.put(ColorType.COMENTARIO, 1);    // Máxima prioridad
+        priorities.put(ColorType.ID, 1);     // Máxima prioridad
+        priorities.put(ColorType.FN, 2);
+        priorities.put(ColorType.DT, 3);
+        priorities.put(ColorType.RW, 4);
+        priorities.put(ColorType.OP_ARIT, 4);
+        priorities.put(ColorType.OP_REL, 5); // Baja prioridad
+        priorities.put(ColorType.OP_LOG, 5);
+        priorities.put(ColorType.OP_ASIGN, 5);
+        priorities.put(ColorType.ERR, 6);
+        priorities.put(ColorType.DEL, 7);
+
+        // 3) Ordenar tokens por prioridad, posición y tamaño
+        tokens.sort((t1, t2) -> {
+            // Primero: Prioridad del tipo de token
+            int p1 = priorities.getOrDefault(t1.getColor(), 10);
+            int p2 = priorities.getOrDefault(t2.getColor(), 10);
+            if (p1 != p2) return Integer.compare(p1, p2);
+
+            // Segundo: Posición en el documento
+            if (t1.getLine() != t2.getLine()) {
+                return Integer.compare(t1.getLine(), t2.getLine());
+            }
+            if (t1.getColumn() != t2.getColumn()) {
+                return Integer.compare(t1.getColumn(), t2.getColumn());
+            }
+
+            // Tercero: Longitud (tokens más largos primero)
+            return Integer.compare(t2.getText().length(), t1.getText().length());
+        });
+
+        // 4) Calcular offsets de líneas
         String fullText = doc.getText(0, doc.getLength());
+        int[] lineOffsets = calculateLineOffsets(fullText);
+
+        // 5) Aplicar estilos en orden priorizado
         for (Token t : tokens) {
             Style st = styles.get(t.getLexemeType());
             if (st == null) continue;
 
-            String lexeme = t.getText();
-            int index = fullText.indexOf(lexeme);
-            while (index >= 0) {
-                doc.setCharacterAttributes(index, lexeme.length(), st, true);
-                index = fullText.indexOf(lexeme, index + lexeme.length());
+            int startOffset = lineOffsets[t.getLine()] + t.getColumn();
+            int length = t.getText().length();
+
+            // Validar límites del documento
+            if (startOffset >= 0 && startOffset + length <= doc.getLength()) {
+                doc.setCharacterAttributes(startOffset, length, st, true);
             }
         }
+    }
+    private int[] calculateLineOffsets(String text) {
+        List<Integer> offsets = new ArrayList<>();
+        offsets.add(0); // Línea 0 inicia en 0
+
+        int pos = 0;
+        while (pos < text.length()) {
+            char c = text.charAt(pos++);
+            if (c == '\n' || c == '\r') {
+                // Manejar saltos de línea (incluso \r\n)
+                if (c == '\r' && pos < text.length() && text.charAt(pos) == '\n') pos++;
+                offsets.add(pos);
+            }
+        }
+
+        return offsets.stream().mapToInt(i -> i).toArray();
     }
 }

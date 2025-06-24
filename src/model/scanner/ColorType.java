@@ -6,10 +6,7 @@ package model.scanner;
 
 import java.awt.Color;
 
-/**
- *
- * @author Cesar_R
- */
+
 // para fondo blanco / fondo oscuro, respectivamente:
 
 public enum ColorType {
@@ -23,6 +20,7 @@ public enum ColorType {
     OP_LOG(Color.decode("#800080"), Color.decode("#C678DD")), // Logical operators (Purple)
     OP_ASIGN(Color.decode("#4B0082"), Color.WHITE), // Assignment operators (Indigo)
     DEL(Color.decode("#4B0082"), Color.WHITE), // Delimiters, e.g. braces, parentheses (Indigo)
+    COMENTARIO(Color.decode("3F7F5F"), Color.decode("3F7F5F")),
     ERR(Color.decode("#FF0000"), Color.decode("#BE5046")), // Errors (Red)
     EOF(Color.decode("#000000"), Color.decode("#282C34")); // End of file (Black)
 

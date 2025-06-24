@@ -3,9 +3,8 @@ package view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
+import java.awt.Point;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.*;
@@ -85,19 +84,21 @@ public class Compilador extends JFrame {
         lineNumbers.setEditable(false);
         lineNumbers.setFocusable(false);
         lineNumbers.setHighlighter(null);
-        lineNumbers.addMouseListener(new MouseAdapter() {
-            @Override public void mousePressed(MouseEvent e) { e.consume(); }
-            @Override public void mouseClicked(MouseEvent e) { e.consume(); }
-        });
-        lineNumbers.addMouseMotionListener(new MouseAdapter() {
-            @Override public void mouseDragged(MouseEvent e) { e.consume(); }
-        });
         lineNumbers.setBackground(new Color(230,230,230));
         lineNumbers.setFont(editorPane.getFont());
         lineNumbers.setPreferredSize(new Dimension(40, Integer.MAX_VALUE));
 // Evitar selección al hacer click
         lineNumbers.setCaretPosition(0);
         editorScroll.setRowHeaderView(lineNumbers);
+        lineNumbers.addMouseListener(new MouseAdapter() {
+            @Override public void mousePressed(MouseEvent e) { e.consume(); }
+            @Override public void mouseReleased(MouseEvent e) { e.consume(); }
+            @Override public void mouseClicked(MouseEvent e) { e.consume(); }
+        });
+        lineNumbers.addMouseMotionListener(new MouseAdapter() {
+            @Override public void mouseDragged(MouseEvent e) { e.consume(); }
+        });
+        lineNumbers.addMouseWheelListener(e -> e.consume());
 // Sincronizar líneas al editar
         editorPane.getDocument().addDocumentListener(new DocumentListener() {
             @Override public void insertUpdate(DocumentEvent e) { updateLineNumbers(); }
@@ -139,14 +140,12 @@ public class Compilador extends JFrame {
         am.put("save", saveAction);
     }
     private void updateLineNumbers() {
-        int totalLines = editorPane.getDocument()
-                .getDefaultRootElement().getElementCount();
+        int totalLines = editorPane.getDocument().getDefaultRootElement().getElementCount();
         StringBuilder sb = new StringBuilder();
-        for (int i = 1; i <= totalLines; i++) {
-            sb.append(i).append("\n");
-        }
+        for (int i = 1; i <= totalLines; i++) sb.append(i).append("\n");
         lineNumbers.setText(sb.toString());
     }
+
 
     private void onNuevo() {
         editorPane.setText(""); updateLineNumbers();

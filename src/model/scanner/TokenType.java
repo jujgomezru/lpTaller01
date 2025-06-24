@@ -81,6 +81,7 @@ public enum TokenType {
     LIT_INT(ColorType.LIT),
     LIT_FLOAT(ColorType.LIT),
     LIT_STRING(ColorType.LIT),
+    COMENTARIO(ColorType.COMENTARIO),
     E_NUM_START_ZERO(ColorType.ERR),
     E_SIMB_NOT_FOUND(ColorType.ERR),
     E_ID_START_DIGIT(ColorType.ERR),

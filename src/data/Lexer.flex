@@ -149,8 +149,8 @@ String = \"(\\.|[^\"\\])*\" | \'(\\.|[^\'\\])*\'
 "]" { return token(TokenType.R_CORCHETE, yytext(), yyline, yycolumn); }
 
 /* Comentarios o espacios en blanco */
-{Comentario}|{EspacioEnBlanco} { /*Ignorar*/ }
-/*Nota: todo elemento dentro de comillas dobles o simples se toma como comentario y se ignora */
+{Comentario} { return token(TokenType.COMENTARIO, yytext(), yyline, yycolumn); }
+{EspacioEnBlanco} {/* Ignorar */}
 /* Signos de puntuación */
 "," { return token(TokenType.COMA, yytext(), yyline, yycolumn); }
 ";" { return token(TokenType.PUNTO_COMA, yytext(), yyline, yycolumn); }

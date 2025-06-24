@@ -17,6 +17,7 @@ public class Token {
         this.column = column;
         this.color = this.type.getColor();
         this.lexemeType = this.color.name();
+
     }
 
     /**
