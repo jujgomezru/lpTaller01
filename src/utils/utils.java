@@ -134,7 +134,7 @@ public class utils {
 
     public static void adjustCurrentDir() throws IOException, IOException {
         String nameDir = "lpTaller01";
-        File currentDir = new File(".");
+        File currentDir = new File("lpTaller01");
         File targetDir = new File(nameDir);
 
         if (new File(currentDir, nameDir).exists()) {
