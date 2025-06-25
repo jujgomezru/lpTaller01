@@ -2,14 +2,10 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.StyledDocument;
 import model.scanner.Token;
@@ -19,7 +15,6 @@ import controller.LexerController;
 
 /**
  * Interfaz principal del compilador léxico, con editor, consola y tokens.
- * Incluye un gutter de números de línea no editable.
  */
 public class Compilador extends JFrame {
 
@@ -38,7 +33,6 @@ public class Compilador extends JFrame {
     private JTextArea consoleArea;
     private JTable tokensTable;
     private JButton btnToggleTheme;
-    private JTextArea lineNumbers; // gutter
 
     public Compilador() {
         super("Analizador Léxico");
@@ -80,27 +74,10 @@ public class Compilador extends JFrame {
         toolBar.addSeparator();
         toolBar.add(btnToggleTheme);
 
-        // Editor y gutter de líneas
+        // Editor sin gutter
         editorPane = new JTextPane();
         editorPane.setFont(new java.awt.Font("Monospaced", 0, 14));
         JScrollPane editorScroll = new JScrollPane(editorPane);
-        lineNumbers = new JTextArea("1");
-        // Configurar gutter de líneas estático
-        lineNumbers.setEditable(false);
-        lineNumbers.setFocusable(false);
-        lineNumbers.setHighlighter(null);
-        lineNumbers.setBackground(new Color(230,230,230));
-        lineNumbers.setFont(editorPane.getFont());
-        lineNumbers.setPreferredSize(new Dimension(40, Integer.MAX_VALUE));
-        // Evitar selección al hacer click
-        lineNumbers.setCaretPosition(0);
-        editorScroll.setRowHeaderView(lineNumbers);
-        // Sincronizar líneas al editar
-        editorPane.getDocument().addDocumentListener(new DocumentListener() {
-            @Override public void insertUpdate(DocumentEvent e) { updateLineNumbers(); }
-            @Override public void removeUpdate(DocumentEvent e) { updateLineNumbers(); }
-            @Override public void changedUpdate(DocumentEvent e) { }
-        });
 
         // Consola de errores
         consoleArea = new JTextArea();
@@ -142,18 +119,8 @@ public class Compilador extends JFrame {
         am.put("save", saveAction);
     }
 
-    private void updateLineNumbers() {
-        int totalLines = editorPane.getDocument()
-                .getDefaultRootElement().getElementCount();
-        StringBuilder sb = new StringBuilder();
-        for (int i = 1; i <= totalLines; i++) {
-            sb.append(i).append("\n");
-        }
-        lineNumbers.setText(sb.toString());
-    }
-
     private void onNuevo() {
-        editorPane.setText(""); updateLineNumbers();
+        editorPane.setText("");
         try { syntaxHighlighter.initialize((StyledDocument) editorPane.getDocument(), dark); }
         catch (BadLocationException e) { e.printStackTrace(); }
         consoleArea.setText("");
@@ -165,7 +132,6 @@ public class Compilador extends JFrame {
             try {
                 String content = java.nio.file.Files.readString(file.toPath());
                 editorPane.setText(content);
-                updateLineNumbers();
                 currentFilePath = file.getAbsolutePath();
                 var tokens = lexerController.analyze(content).getTokens();
                 syntaxHighlighter.initialize((StyledDocument) editorPane.getDocument(), dark);
@@ -220,18 +186,11 @@ public class Compilador extends JFrame {
         consoleArea.setForeground(dark ? Color.LIGHT_GRAY : Color.BLACK);
         tokensTable.setBackground(dark ? new Color(40, 44, 52) : Color.WHITE);
         tokensTable.setForeground(dark ? Color.LIGHT_GRAY : Color.BLACK);
-        lineNumbers.setBackground(dark ? new Color(50,50,50) : new Color(230,230,230));
-        lineNumbers.setForeground(dark ? Color.LIGHT_GRAY : Color.DARK_GRAY);
         try {
             var tokens = lexerController.analyze(editorPane.getText()).getTokens();
             syntaxHighlighter.initialize((StyledDocument) editorPane.getDocument(), dark);
             syntaxHighlighter.applyHighlight((StyledDocument) editorPane.getDocument(), tokens);
         } catch (BadLocationException e) { e.printStackTrace(); }
-    }
-
-    private void onTokenSelected(ListSelectionEvent e) {
-        if (!e.getValueIsAdjusting()) return;
-        for (int r : tokensTable.getSelectedRows()) System.out.println("Token fila: " + r);
     }
 
     public static void main(String[] args) {
